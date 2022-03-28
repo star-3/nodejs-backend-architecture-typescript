@@ -67,7 +67,7 @@ export default class UserRepo {
     return { user: createdUser.toObject(), keystore: keystore };
   }
 
-  private static userUpdateOne(user: User): Promise<any> {
+  private static updateOne(user: User): Promise<any> {
     return UserModel.updateOne({ _id: user._id }, { $set: { ...user } })
       .lean()
       .exec();
@@ -79,13 +79,13 @@ export default class UserRepo {
     refreshTokenKey: string,
   ): Promise<{ user: User; keystore: Keystore }> {
     user.updatedAt = new Date();
-    await this.userUpdateOne(user);
+    await this.updateOne(user);
     const keystore = await KeystoreRepo.create(user._id, accessTokenKey, refreshTokenKey);
     return { user: user, keystore: keystore };
   }
 
   public static updateInfo(user: User): Promise<any> {
     user.updatedAt = new Date();
-    return this.userUpdateOne(user);
+    return this.updateOne(user);
   }
 }
