@@ -31,28 +31,22 @@ export const createTokens = async (
   accessTokenKey: string,
   refreshTokenKey: string,
 ): Promise<Tokens> => {
-  const accessToken = await JWT.encode(
-    new JwtPayload(
-      tokenInfo.issuer,
-      tokenInfo.audience,
-      user._id.toString(),
-      accessTokenKey,
-      tokenInfo.accessTokenValidityDays,
-    ),
-  );
+  const encodeJWT = function (key: string, validity: number): Promise<string> {
+    return JWT.encode(
+      new JwtPayload(
+        tokenInfo.issuer,
+        tokenInfo.audience,
+        user._id.toString(),
+        key,
+        validity,
+      ),
+    );
+  };
 
+  const accessToken = await encodeJWT(accessTokenKey, tokenInfo.accessTokenValidityDays);
   if (!accessToken) throw new InternalError();
 
-  const refreshToken = await JWT.encode(
-    new JwtPayload(
-      tokenInfo.issuer,
-      tokenInfo.audience,
-      user._id.toString(),
-      refreshTokenKey,
-      tokenInfo.refreshTokenValidityDays,
-    ),
-  );
-
+  const refreshToken = await encodeJWT(refreshTokenKey, tokenInfo.refreshTokenValidityDays);
   if (!refreshToken) throw new InternalError();
 
   return {
