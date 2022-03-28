@@ -67,23 +67,25 @@ export default class UserRepo {
     return { user: createdUser.toObject(), keystore: keystore };
   }
 
+  private static userUpdateOne(user: User): Promise<any> {
+    return UserModel.updateOne({ _id: user._id }, { $set: { ...user } })
+      .lean()
+      .exec();
+  }
+
   public static async update(
     user: User,
     accessTokenKey: string,
     refreshTokenKey: string,
   ): Promise<{ user: User; keystore: Keystore }> {
     user.updatedAt = new Date();
-    await UserModel.updateOne({ _id: user._id }, { $set: { ...user } })
-      .lean()
-      .exec();
+    await this.userUpdateOne(user);
     const keystore = await KeystoreRepo.create(user._id, accessTokenKey, refreshTokenKey);
     return { user: user, keystore: keystore };
   }
 
   public static updateInfo(user: User): Promise<any> {
     user.updatedAt = new Date();
-    return UserModel.updateOne({ _id: user._id }, { $set: { ...user } })
-      .lean()
-      .exec();
+    return this.userUpdateOne(user);
   }
 }
