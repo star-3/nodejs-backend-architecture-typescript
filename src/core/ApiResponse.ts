@@ -123,3 +123,7 @@ export class TokenRefreshResponse extends ApiResponse {
     return super.prepare<TokenRefreshResponse>(res, this);
   }
 }
+
+export const getDefaultModelSuccessResponse = (model: any, res: Response): Response => {
+  return new SuccessResponse('success', model).send(res);
+};
