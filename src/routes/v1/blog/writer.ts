@@ -1,5 +1,5 @@
 import express from 'express';
-import { SuccessResponse, SuccessMsgResponse } from '../../../core/ApiResponse';
+import { SuccessResponse, SuccessMsgResponse, getDefaultModelSuccessResponse } from '../../../core/ApiResponse';
 import { ProtectedRequest } from 'app-request';
 import { BadRequestError, ForbiddenError } from '../../../core/ApiError';
 import BlogRepo from '../../../database/repository/BlogRepo';
@@ -137,7 +137,7 @@ router.get(
   '/submitted/all',
   asyncHandler(async (req: ProtectedRequest, res) => {
     const blogs = await BlogRepo.findAllSubmissionsForWriter(req.user);
-    return new SuccessResponse('success', blogs).send(res);
+    return getDefaultModelSuccessResponse(blogs, res);
   }),
 );
 
@@ -145,7 +145,7 @@ router.get(
   '/published/all',
   asyncHandler(async (req: ProtectedRequest, res) => {
     const blogs = await BlogRepo.findAllPublishedForWriter(req.user);
-    return new SuccessResponse('success', blogs).send(res);
+    return getDefaultModelSuccessResponse(blogs, res);
   }),
 );
 
@@ -153,7 +153,7 @@ router.get(
   '/drafts/all',
   asyncHandler(async (req: ProtectedRequest, res) => {
     const blogs = await BlogRepo.findAllDraftsForWriter(req.user);
-    return new SuccessResponse('success', blogs).send(res);
+    return getDefaultModelSuccessResponse(blogs, res);
   }),
 );
 
@@ -165,7 +165,7 @@ router.get(
     if (!blog) throw new BadRequestError('Blog does not exists');
     if (!blog.author._id.equals(req.user._id))
       throw new ForbiddenError("You don't have necessary permissions");
-    new SuccessResponse('success', blog).send(res);
+    getDefaultModelSuccessResponse(blog, res);
   }),
 );
 
