@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 import User from '../model/User';
 
 export default class BlogRepo {
-  private static AUTHOR_DETAIL = 'name profilePicUrl';
+  public static AUTHOR_DETAIL = 'name profilePicUrl';
   private static BLOG_INFO_ADDITIONAL = '+isSubmitted +isDraft +isPublished +createdBy +updatedBy';
   private static BLOG_ALL_DATA =
     '+text +draftText +isSubmitted +isDraft +isPublished +status +createdBy +updatedBy';
@@ -129,57 +129,6 @@ export default class BlogRepo {
       .limit(limit)
       .populate('author', this.AUTHOR_DETAIL)
       .sort({ publishedAt: -1 })
-      .lean<Blog>()
-      .exec();
-  }
-
-  public static searchSimilarBlogs(blog: Blog, limit: number): Promise<Blog[]> {
-    return BlogModel.find(
-      {
-        $text: { $search: blog.title, $caseSensitive: false },
-        status: true,
-        isPublished: true,
-        _id: { $ne: blog._id },
-      },
-      {
-        similarity: { $meta: 'textScore' },
-      },
-    )
-      .populate('author', this.AUTHOR_DETAIL)
-      .sort({ updatedAt: -1 })
-      .limit(limit)
-      .sort({ similarity: { $meta: 'textScore' } })
-      .lean<Blog>()
-      .exec();
-  }
-
-  public static search(query: string, limit: number): Promise<Blog[]> {
-    return BlogModel.find(
-      {
-        $text: { $search: query, $caseSensitive: false },
-        status: true,
-        isPublished: true,
-      },
-      {
-        similarity: { $meta: 'textScore' },
-      },
-    )
-      .select('-status -description')
-      .limit(limit)
-      .sort({ similarity: { $meta: 'textScore' } })
-      .lean<Blog>()
-      .exec();
-  }
-
-  public static searchLike(query: string, limit: number): Promise<Blog[]> {
-    return BlogModel.find({
-      title: { $regex: `.*${query}.*`, $options: 'i' },
-      status: true,
-      isPublished: true,
-    })
-      .select('-status -description')
-      .limit(limit)
-      .sort({ score: -1 })
       .lean<Blog>()
       .exec();
   }

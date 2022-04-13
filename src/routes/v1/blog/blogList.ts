@@ -2,6 +2,7 @@ import express from 'express';
 import { SuccessResponse } from '../../../core/ApiResponse';
 import { NoDataError, BadRequestError } from '../../../core/ApiError';
 import BlogRepo from '../../../database/repository/BlogRepo';
+import BlogSearchRepo from '../../../database/repository/BlogSearchRepo';
 import { Types } from 'mongoose';
 import validator, { ValidationSource } from '../../../helpers/validator';
 import schema from './schema';
@@ -63,7 +64,7 @@ router.get(
     const blog = await BlogRepo.findBlogAllDataById(new Types.ObjectId(req.params.id));
     if (!blog || !blog.isPublished) throw new BadRequestError('Blog is not available');
 
-    const blogs = await BlogRepo.searchSimilarBlogs(blog, 6);
+    const blogs = await BlogSearchRepo.searchSimilarBlogs(blog, 6);
     if (!blogs || blogs.length < 1) throw new NoDataError();
 
     return new SuccessResponse('success', blogs).send(res);
